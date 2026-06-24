@@ -2,7 +2,7 @@ ResearchOS API Documentation
 
 Overview
 
-ResearchOS exposes a unified API layer that provides access to research discovery, paper management, knowledge graph exploration, novelty analysis, research gap detection, collaboration workflows, analytics, and AI-assisted research capabilities.
+ResearchOS exposes a unified API layer that provides access to research discovery, paper management, knowledge graph exploration, novelty analysis, research gap detection, collaboration workflows, and programmatic integration points for enterprise customers. The API is designed for stability, observability, and backward compatibility across releases.
 
 The API follows a service-oriented architecture while presenting a unified developer experience through the API Gateway.
 
@@ -28,14 +28,13 @@ API Principles
 
 ResearchOS APIs follow these principles:
 
-- REST-first architecture
-- JSON request and response format
-- Stateless authentication
-- JWT-based authorization
-- Consistent error handling
-- Pagination for large datasets
-- Versioned endpoints
-- Idempotent write operations when applicable
+- REST-first architecture for public surfaces, with gRPC available for high-throughput internal RPCs
+- JSON request and response format for HTTP endpoints
+- Stateless authentication with short-lived JWTs and refresh tokens
+- Consistent error handling using a canonical error envelope
+- Pagination for large datasets, with cursor support for deep pagination
+- Versioned endpoints and explicit deprecation policy
+- Idempotent write operations where applicable
 
 ---
 
