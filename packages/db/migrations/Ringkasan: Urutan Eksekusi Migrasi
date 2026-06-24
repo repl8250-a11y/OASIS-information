@@ -1,0 +1,134 @@
+To apply all migrations in the correct order, run the following command:
+
+#!/bin/bash
+
+MIGRATIONS_DIR="packages/db/migrations"
+
+for migration in \
+  001_create_users_tables.sql \
+  002_create_organizations_tables.sql \
+  003_create_papers_tables.sql \
+  004_create_collections_tables.sql \
+  005_create_collaboration_tables.sql \
+  006_create_search_tables.sql \
+  007_create_analysis_tables.sql \
+  008_create_copilot_tables.sql \
+  009_create_knowledge_graph_tables.sql \
+  010_create_access_control_tables.sql \
+  011_create_system_tables.sql \
+  012_add_foreign_keys.sql \
+  013_add_partitioning.sql \
+  014_add_performance_indexes.sql
+do
+  echo "Executing: $migration"
+  psql -U postgres -d researchos -f "$MIGRATIONS_DIR/$migration"
+  if [ $? -eq 0 ]; then
+    echo "✓ $migration completed"
+  else
+    echo "✗ $migration failed"
+    exit 1
+  fi
+done
+
+echo "All migrations completed successfully!"
+
+Key Statistics:
+
+Metric	Count
+Total Tables	50+
+Total Indexes	150+
+Foreign Key Constraints	80+
+Check Constraints	25+
+Partitioned Tables	3
+Unique Constraints	40+
+
+
+Schema Diagram:
+
+Core Authentication
+├── users
+├── sessions
+├── mfa_settings
+├── oauth_connections
+├── api_keys
+└── auth_audit_logs
+
+Organizations & Collaboration
+├── organizations
+├── organization_members
+├── teams
+├── team_members
+├── research_projects
+└── project_members
+
+Papers & Content
+├── papers
+├── paper_versions
+├── paper_authors
+├── paper_citations
+├── paper_content
+└── paper_metadata
+
+Collections & Saving
+├── collections
+├── collection_papers
+├── collection_shares
+├── saved_searches
+└── saved_search_results
+
+Collaboration
+├── annotations
+├── comments
+├── comment_reactions
+└── research_projects
+
+Search & Analytics
+├── search_queries
+├── trending_searches
+├── user_search_behavior
+└── novelty_scores
+
+Analysis & Intelligence
+├── topic_trends
+├── research_gaps
+├── gap_opportunities
+├── competitive_analysis
+├── portfolio_entries
+└── portfolio_analysis
+
+AI & Knowledge
+├── copilot_sessions
+├── copilot_messages
+├── rag_retrievals
+├── fact_checks
+├── knowledge_graph_entities
+├── knowledge_graph_relationships
+└── entity_mentions
+
+Access Control & Compliance
+├── paper_access_rights
+├── data_export_requests
+├── audit_logs
+├── user_consents
+└── user_data_requests
+
+System Configuration
+├── feature_flags
+├── rate_limit_rules
+├── system_notifications
+├── notification_deliveries
+└── api_rate_limits
+
+
+
+
+
+
+
+
+
+
+
+
+
+
