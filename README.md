@@ -1,4 +1,4 @@
-# OASISResearch 
+# OASIS-Research 🌴🏜️
 
 ## What is OASIS ?
 
