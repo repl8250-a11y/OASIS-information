@@ -1,0 +1,13 @@
+# Dockerignore for knowledge-graph-service
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.env.local
+.venv/
+venv/
+*.log
+.migrations/
+
