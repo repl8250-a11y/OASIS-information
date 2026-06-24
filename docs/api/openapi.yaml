@@ -1,1 +1,220 @@
-
+openapi: 3.0.3
+info:
+  title: ResearchOS / OASIS API
+  description: |
+    Production OpenAPI surface for core ResearchOS / OASIS services: auth, users, discovery, papers, health.
+  version: "1.0.0"
+servers:
+  - url: https://api.researchos.ai
+    description: Production
+  - url: https://staging-api.researchos.ai
+    description: Staging
+  - url: http://localhost:8000
+    description: Local development
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    page:
+      name: page
+      in: query
+      description: Page number (1-based)
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    pageSize:
+      name: pageSize
+      in: query
+      description: Number of items per page
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+  schemas:
+    TokenResponse:
+      type: object
+      required: [access_token, token_type, expires_in]
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        token_type:
+          type: string
+          example: bearer
+        expires_in:
+          type: integer
+          description: Lifetime in seconds
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+paths:
+  /api/auth/login:
+    post:
+      summary: Exchange credentials for tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Token pair
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/auth/refresh:
+    post:
+      summary: Refresh access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        '200':
+          description: New tokens issued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          description: Invalid or expired refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/system/health:
+    get:
+      summary: Service health (aggregated)
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  components:
+                    type: object
+  /api/discovery/search:
+    get:
+      summary: Unified search endpoint (keyword and semantic)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Query string
+        - in: query
+          name: mode
+          schema:
+            type: string
+            enum: [keyword, semantic]
+            default: keyword
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                  total:
+                    type: integer
+  /api/papers/{paperId}:
+    get:
+      summary: Retrieve paper metadata and locations
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: paperId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paper document
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  title:
+                    type: string
+                  abstract:
+                    type: string
+                  authors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        orcid:
+                          type: string
+                  venue:
+                    type: string
+                  year:
+                    type: integer
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+security:
+  - bearerAuth: []
+tags:
+  - name: auth
+    description: Authentication and token management
+  - name: discovery
+    description: Search and retrieval
