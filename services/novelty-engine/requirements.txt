@@ -1,3 +1,9 @@
 fastapi
 uvicorn
 numpy
+asyncpg
+aioredis
+prometheus_client
+structlog
+pydantic
+httpx
