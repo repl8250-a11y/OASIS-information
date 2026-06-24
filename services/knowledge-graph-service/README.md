@@ -1,6 +1,6 @@
 # Knowledge Graph Service
 
-The Knowledge Graph Service provides persistent storage and query endpoints for interconnected entities (nodes and edges) used across the OASIS platform. It supports ingestion, indexing, search, and exposes a graph query API for downstream services.
+The Knowledge Graph Service provides persistent storage and query endpoints for interconnected entities (nodes and edges) used across the OASIS platform. It supports ingestion, indexing, search, an[...] 
 
 Primary responsibilities
 - Persist node and edge documents in a graph-aware store (Postgres + PGGraph or Neo4j optional).
@@ -76,3 +76,27 @@ Run locally
 - Start Postgres with pgvector and Redis
 - pip install -r requirements.txt
 - uvicorn services.knowledge_graph_service.src.main:app --host 0.0.0.0 --port ${KG_PORT:-8081}
+
+## Quickstart example
+Below is a minimal example demonstrating how to call the vector search API and interpret the response.
+
+Request:
+
+curl -sS -X POST "http://localhost:8081/api/v1/kg/search" \
+  -H "Content-Type: application/json" \
+  -d '{"query_embedding": [0.12, 0.23, 0.34, 0.45], "k": 3}'
+
+Example response (200 OK):
+
+{
+  "results": [
+    {"id": "uuid-1", "external_id": "paper:1234", "type": "paper", "distance": 0.12, "properties": {"title": "An example paper"}},
+    {"id": "uuid-2", "external_id": "paper:5678", "type": "paper", "distance": 0.35, "properties": {"title": "Related work"}},
+    {"id": "uuid-3", "external_id": "paper:9012", "type": "paper", "distance": 0.78, "properties": {"title": "Distant paper"}}
+  ]
+}
+
+Notes:
+- The search API returns a `results` array sorted by ascending distance (lower distance = more similar).
+- Distances are typically cosine or euclidean distances depending on your embedding/vector index configuration.
+- If your service exposes authentication, include appropriate Authorization headers; the example assumes an open local instance for development.
